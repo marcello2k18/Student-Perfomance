@@ -26,11 +26,11 @@ jumlah_mk = st.number_input("Jumlah Mata Kuliah Diambil", 1, 20, 10)
 
 # Prediksi
 if st.button("Prediksi IPK"):
- features = pd.DataFrame([{
-    "rata2_nilai": rata2_nilai,
-    "rata2_hadir": rata2_hadir,
-    "jumlah_mk_diambil": jumlah_mk
-}])
+    features = pd.DataFrame([{
+        "rata2_nilai": rata2_nilai,
+        "rata2_hadir": rata2_hadir,
+        "jumlah_mk_diambil": jumlah_mk
+    }])
 
     prediction = model.predict(features)[0]
 
