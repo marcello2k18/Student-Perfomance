@@ -28,12 +28,16 @@ jumlah_mk = st.number_input("Jumlah Mata Kuliah Diambil", 1, 20, 10)
 if st.button("Prediksi IPK"):
     features = np.array([[rata2_nilai, rata2_hadir, jumlah_mk]])
     prediction = model.predict(features)[0]
-    
-if prediction >= 3.7:
-    st.success(f"🎯 Prediksi IPK: {prediction:.2f} — Sangat Memuaskan!")
-    st.balloons()
-elif prediction >= 3.0:
-    st.info(f"✅ Prediksi IPK: {prediction:.2f} — Cukup Baik")
-else:
-    st.warning(f"⚠️ Prediksi IPK: {prediction:.2f} — Perlu Perhatian")
-    st.snow()  
+
+    if prediction >= 3.7:
+        st.balloons()
+        st.success(f"🎯 Prediksi IPK: {prediction:.2f} — Sangat Memuaskan!")
+        st.markdown("![Senang Banget](https://media.giphy.com/media/xT0BKmtQGLbumr5RCM/giphy.gif)")
+
+    elif prediction >= 3.0:
+        st.info(f"✅ Prediksi IPK: {prediction:.2f} — Cukup Baik")
+        st.markdown("![Tidak Senang](https://media.giphy.com/media/3o7abAhvUQbXQvlPzW/giphy.gif)")
+
+    else:
+        st.warning(f"😢 Prediksi IPK: {prediction:.2f} — Perlu Perhatian")
+        st.markdown("![Sedih Menangis](https://media.giphy.com/media/3o6Zt481isNVuQI1l6/giphy.gif)")
