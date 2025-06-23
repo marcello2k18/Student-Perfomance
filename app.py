@@ -2,8 +2,8 @@
 import streamlit as st
 import numpy as np
 import pickle
-import pickle
 import os
+import sklearn
 
 # Load model dari file
 @st.cache_resource
