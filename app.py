@@ -1,6 +1,6 @@
-# app.py
 import streamlit as st
 import numpy as np
+import pandas as pd
 import pickle
 import os
 import sklearn
@@ -26,7 +26,12 @@ jumlah_mk = st.number_input("Jumlah Mata Kuliah Diambil", 1, 20, 10)
 
 # Prediksi
 if st.button("Prediksi IPK"):
-    features = np.array([[rata2_nilai, rata2_hadir, jumlah_mk]])
+    features = pd.DataFrame([{
+        "rata2_nilai": rata2_nilai,
+        "rata2_hadir": rata2_hadir,
+        "jumlah_mk": jumlah_mk
+    }])
+
     prediction = model.predict(features)[0]
 
     if prediction >= 3.7:
