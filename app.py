@@ -6,7 +6,11 @@ import pickle
 # Load model dari file
 @st.cache_resource
 def load_model():
-    with open("xgb_optuna_model.pkl", "rb") as f:
+    model_path = "xgb_optuna_model.pkl"
+    if not os.path.exists(model_path):
+        st.error("❌ File model tidak ditemukan. Pastikan 'xgb_optuna_model.pkl' ada di root folder.")
+        st.stop()
+    with open(model_path, "rb") as f:
         return pickle.load(f)
 
 model = load_model()
