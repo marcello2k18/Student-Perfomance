@@ -34,12 +34,13 @@ if st.button("Prediksi IPK"):
 
     prediction = model.predict(features)[0]
 
-   if prediction >= 3.7:
-    st.balloons()
-    st.success(f"🎯 Prediksi IPK: {prediction:.2f} — Sangat Memuaskan!")
+    if prediction >= 3.7:
+        st.balloons()
+        st.success(f"🎯 Prediksi IPK: {prediction:.2f} — Sangat Memuaskan!")
 
-elif prediction >= 3.0:
-    st.info(f"😊 Prediksi IPK: {prediction:.2f} — Cukup Baik")
+    elif prediction >= 3.0:
+        st.balloons()
+        st.info(f"😊 Prediksi IPK: {prediction:.2f} — Cukup Baik")
 
-else:
-    st.warning(f"⚠️ Prediksi IPK: {prediction:.2f} — Perlu Perhatian Lebih")
+    else:
+        st.warning(f"⚠️ Prediksi IPK: {prediction:.2f} — Perlu Perhatian Lebih")
