@@ -19,10 +19,11 @@ model = load_model()
 
 st.title("🎓 Prediksi IPK Mahasiswa")
 
-# Input fitur
-rata2_nilai = st.slider("Rata-rata Nilai Angka", 50.0, 100.0, 75.0)
-rata2_hadir = st.slider("Rata-rata Kehadiran", 0.0, 16.0, 13.0)
-jumlah_mk = st.number_input("Jumlah Mata Kuliah Diambil", 1, 20, 10)
+# Input fitur dengan batas yang sesuai Data
+rata2_nilai = st.slider("Rata-rata Nilai Angka", 0.0, 100.0, 75.0)      # dari 0–100
+rata2_hadir = st.slider("Rata-rata Kehadiran", 0.0, 14.0, 12.0)         # dari 0–14
+jumlah_mk = st.number_input("Jumlah Mata Kuliah Diambil", 1, 20, 10)    # tetap
+
 
 # Prediksi
 if st.button("Prediksi IPK"):
