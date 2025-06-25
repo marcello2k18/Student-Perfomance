@@ -1,11 +1,11 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
-import pickle
+import numpy as np
 import os
-import sklearn
+import pickle
+import matplotlib.pyplot as plt
 
-# Load model dari file
+# === Load Model ===
 @st.cache_resource
 def load_model():
     model_path = "xgb_optuna_model.pkl"
@@ -17,16 +17,28 @@ def load_model():
 
 model = load_model()
 
+# === Sidebar Branding ===
+with st.sidebar:
+    st.image("https://upload.wikimedia.org/wikipedia/commons/7/79/Universitas_Multimedia_Nusantara.png", width=150)
+    st.markdown("**Made by MBKM Research Team**")
+    st.markdown("Model: `XGBoost (Optuna)`")
+    st.caption("Versi Aplikasi: 1.0")
+
+# === Judul Aplikasi ===
 st.title("🎓 Prediksi IPK Mahasiswa")
+st.subheader("📘 Tentang Aplikasi")
+st.markdown(
+    "Aplikasi ini memprediksi **IPK akhir mahasiswa** berdasarkan nilai angka, "
+    "kehadiran, dan jumlah mata kuliah yang diambil menggunakan model **XGBoost hasil tuning Optuna**."
+)
 
-# Input fitur dengan batas yang sesuai Data
-rata2_nilai = st.slider("Rata-rata Nilai Angka", 0.0, 100.0, 75.0)      # dari 0–100
-rata2_hadir = st.slider("Rata-rata Kehadiran", 0.0, 14.0, 12.0)         # dari 0–14
-jumlah_mk = st.number_input("Jumlah Mata Kuliah Diambil", 1, 20, 10)    # tetap
+# === Input User ===
+rata2_nilai = st.slider("Rata-rata Nilai Angka", 0.0, 100.0, 75.0, help="Rentang nilai 0–100.")
+rata2_hadir = st.slider("Rata-rata Kehadiran", 0.0, 14.0, 12.0, help="Rata-rata kehadiran tiap mata kuliah (maks. 14 kali).")
+jumlah_mk = st.number_input("Jumlah Mata Kuliah Diambil", min_value=1, max_value=20, value=10, step=1)
 
-
-# Prediksi
-if st.button("Prediksi IPK"):
+# === Prediksi IPK ===
+if st.button("🎯 Prediksi IPK"):
     features = pd.DataFrame([{
         "rata2_nilai": rata2_nilai,
         "rata2_hadir": rata2_hadir,
@@ -45,3 +57,19 @@ if st.button("Prediksi IPK"):
 
     else:
         st.warning(f"⚠️ Prediksi IPK: {prediction:.2f} — Perlu Perhatian Lebih")
+
+    # === Visualisasi IPK ===
+    st.markdown("### 🔍 Visualisasi Prediksi IPK Anda")
+    fig, ax = plt.subplots(figsize=(6, 1.2))
+    ax.axvline(x=prediction, color='red', linewidth=3)
+    ax.set_xlim(0, 4)
+    ax.set_xticks([0, 1, 2, 3, 4])
+    ax.set_yticks([])
+    ax.set_title("📍 Posisi IPK Anda dalam Skala 0–4")
+    st.pyplot(fig)
+
+# === Feedback ===
+with st.expander("💬 Kirim Masukan untuk Aplikasi"):
+    feedback = st.text_area("Masukkan pendapat atau saran kamu:")
+    if st.button("Kirim Masukan"):
+        st.success("🎉 Terima kasih! Masukan kamu sangat berarti.")
