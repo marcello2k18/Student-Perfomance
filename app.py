@@ -60,12 +60,14 @@ if st.button("🎯 Prediksi IPK"):
 
     # === Visualisasi IPK ===
     st.markdown("### 🔍 Visualisasi Prediksi IPK Anda")
-    fig, ax = plt.subplots(figsize=(6, 1.2))
-    ax.axvline(x=prediction, color='red', linewidth=3)
+    fig, ax = plt.subplots(figsize=(6, 2.5))
     ax.set_xlim(0, 4)
+    ax.axvline(x=prediction, color='red', linewidth=4, linestyle='--', label=f"Prediksi IPK: {prediction:.2f}")
     ax.set_xticks([0, 1, 2, 3, 4])
     ax.set_yticks([])
-    ax.set_title("📍 Posisi IPK Anda dalam Skala 0–4")
+    ax.set_xlabel("Skala IPK (0–4)")
+    ax.set_title("📍 Posisi IPK Anda dalam Skala IPK", fontsize=12)
+    ax.legend(loc="upper right")
     st.pyplot(fig)
 
 # === Feedback ===
