@@ -22,20 +22,23 @@ with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/commons/7/79/Universitas_Multimedia_Nusantara.png", width=150)
     st.markdown("**Made by MBKM Research Team**")
     st.markdown("Model: `XGBoost (Optuna)`")
-    st.caption("Versi Aplikasi: 1.0")
+    st.caption("Versi Aplikasi: 1.1")
 
 # === Judul Aplikasi ===
-st.title("🎓 Prediksi IPK Mahasiswa")
+st.title("🎓 Prediksi Keberhasilan Akademik Mahasiswa")
 st.subheader("📘 Tentang Aplikasi")
 st.markdown(
-    "Aplikasi ini memprediksi **IPK akhir mahasiswa** berdasarkan nilai angka, "
-    "kehadiran, dan jumlah mata kuliah yang diambil menggunakan model **XGBoost hasil tuning Optuna**."
+    "Aplikasi ini memprediksi **keberhasilan akademik mahasiswa** berdasarkan pola kehadiran, nilai akademik, "
+    "dan jumlah mata kuliah yang diambil. Prediksi dilakukan terhadap **IPK akhir mahasiswa** menggunakan model "
+    "**XGBoost yang telah dituning dengan Optuna**."
 )
 
 # === Input User ===
-rata2_nilai = st.slider("Rata-rata Nilai Angka", 0.0, 100.0, 75.0, help="Rentang nilai 0–100.")
-rata2_hadir = st.slider("Rata-rata Kehadiran", 0.0, 14.0, 12.0, help="Rata-rata kehadiran tiap mata kuliah (maks. 14 kali).")
-jumlah_mk = st.number_input("Jumlah Mata Kuliah Diambil", min_value=1, max_value=20, value=10, step=1)
+st.markdown("### 📝 Masukkan Data Mahasiswa")
+
+rata2_nilai = st.number_input("Rata-rata Nilai Angka", min_value=0.0, max_value=100.0, value=80.0, step=0.1)
+rata2_hadir = st.number_input("Rata-rata Kehadiran (per mata kuliah)", min_value=0.0, max_value=14.0, value=12.0, step=0.1)
+jumlah_mk = st.number_input("Jumlah Mata Kuliah yang Diambil", min_value=1, max_value=60, value=48, step=1)
 
 # === Prediksi IPK ===
 if st.button("🎯 Prediksi IPK"):
@@ -47,19 +50,14 @@ if st.button("🎯 Prediksi IPK"):
 
     prediction = model.predict(features)[0]
 
-    if prediction >= 3.7:
-        st.balloons()
-        st.success(f"🎯 Prediksi IPK: {prediction:.2f} — Sangat Memuaskan!")
+    st.markdown("### 🎓 Hasil Prediksi Keberhasilan")
 
+    if prediction >= 3.4:
+        st.success(f"✅ Prediksi IPK: {prediction:.2f} — Mahasiswa diprediksi **BERHASIL** secara akademik.")
+        st.info("Pola nilai dan kehadiran menunjukkan partisipasi belajar yang konsisten.")
     elif prediction >= 3.0:
-        st.balloons()
-        st.info(f"😊 Prediksi IPK: {prediction:.2f} — Cukup Baik")
-
+        st.warning(f"⚠️ Prediksi IPK: {prediction:.2f} — Mahasiswa **CUKUP BERHASIL**, tetapi masih dapat ditingkatkan.")
+        st.info("Tingkat kehadiran dan partisipasi tergolong moderat. Perlu dukungan dan pemantauan lanjutan.")
     else:
-        st.warning(f"⚠️ Prediksi IPK: {prediction:.2f} — Perlu Perhatian Lebih")
-
-# === Feedback ===
-with st.expander("💬 Kirim Masukan untuk Aplikasi"):
-    feedback = st.text_area("Masukkan pendapat atau saran kamu:")
-    if st.button("Kirim Masukan"):
-        st.success("🎉 Terima kasih! Masukan kamu sangat berarti.")
+        st.error(f"❌ Prediksi IPK: {prediction:.2f} — Mahasiswa **KURANG BERHASIL** secara akademik.")
+        st.info("Perlu perhatian lebih terhadap partisipasi, kehadiran, atau beban studi yang terlalu berat.")
