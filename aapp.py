@@ -69,13 +69,22 @@ if input_nim:
     except IndexError:
         st.error("❌ NIM tidak ditemukan dalam data.")
 
-# === Input Massal: Upload Excel ===
-st.header("📥 Prediksi Massal dari File Excel")
+# === Input Massal: Upload CSV/Excel ===
+st.header("📥 Prediksi Massal dari File CSV/Excel")
 uploaded_file = st.file_uploader("Upload file (.csv / .xlsx / .xls) berisi kolom `NIM`", type=["csv", "xlsx", "xls"])
 
 if uploaded_file:
     try:
-        uploaded_df = pd.read_excel(uploaded_file)
+        # Deteksi dan baca format file
+        filename = uploaded_file.name.lower()
+        if filename.endswith(".csv"):
+            uploaded_df = pd.read_csv(uploaded_file)
+        elif filename.endswith((".xlsx", ".xls")):
+            uploaded_df = pd.read_excel(uploaded_file, engine="openpyxl")
+        else:
+            st.error("❌ Format file tidak dikenali. Hanya mendukung .csv, .xlsx, .xls.")
+            st.stop()
+
         if "NIM" not in uploaded_df.columns:
             st.error("❌ Kolom 'NIM' tidak ditemukan dalam file.")
         else:
