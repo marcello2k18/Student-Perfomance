@@ -74,5 +74,5 @@ if input_nim:
         else:
             st.error(f"❌ Prediksi IPK: {prediksi_ipk:.2f} — Mahasiswa **KURANG BERHASIL** secara akademik.")
             st.info("Perlu perhatian lebih terhadap partisipasi, kehadiran, atau beban studi yang terlalu berat.")
-  except IndexError:
+    except IndexError:
         st.error("❌ NIM tidak ditemukan dalam data.")
