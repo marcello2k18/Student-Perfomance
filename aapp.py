@@ -71,7 +71,7 @@ if input_nim:
 
 # === Input Massal: Upload Excel ===
 st.header("📥 Prediksi Massal dari File Excel")
-uploaded_file = st.file_uploader("Upload file Excel (.xlsx) berisi kolom `NIM`", type=["xlsx", "xls"])
+uploaded_file = st.file_uploader("Upload file (.csv / .xlsx / .xls) berisi kolom `NIM`", type=["csv", "xlsx", "xls"])
 
 if uploaded_file:
     try:
