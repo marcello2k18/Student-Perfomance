@@ -65,15 +65,12 @@ if input_nim:
         }])
         prediksi_ipk = model.predict(fitur)[0]
 
-   if prediksi_ipk >= 3.4:
-    st.success(f"✅ Prediksi IPK: {prediksi_ipk:.2f} — Mahasiswa diprediksi **BERHASIL** secara akademik.")
-    st.info("Pola nilai dan kehadiran menunjukkan partisipasi belajar yang konsisten.")
-elif prediksi_ipk >= 3.0:
-    st.warning(f"⚠️ Prediksi IPK: {prediksi_ipk:.2f} — Mahasiswa **CUKUP BERHASIL**, tetapi masih dapat ditingkatkan.")
-    st.info("Tingkat kehadiran dan partisipasi tergolong moderat. Perlu dukungan dan pemantauan lanjutan.")
-else:
-    st.error(f"❌ Prediksi IPK: {prediksi_ipk:.2f} — Mahasiswa **KURANG BERHASIL** secara akademik.")
-    st.info("Perlu perhatian lebih terhadap partisipasi, kehadiran, atau beban studi yang terlalu berat.")
-
-    except IndexError:
-        st.error("❌ NIM tidak ditemukan dalam data.")
+        if prediksi_ipk >= 3.4:
+            st.success(f"✅ Prediksi IPK: {prediksi_ipk:.2f} — Mahasiswa diprediksi **BERHASIL** secara akademik.")
+            st.info("Pola nilai dan kehadiran menunjukkan partisipasi belajar yang konsisten.")
+        elif prediksi_ipk >= 3.0:
+            st.warning(f"⚠️ Prediksi IPK: {prediksi_ipk:.2f} — Mahasiswa **CUKUP BERHASIL**, tetapi masih dapat ditingkatkan.")
+            st.info("Tingkat kehadiran dan partisipasi tergolong moderat. Perlu dukungan dan pemantauan lanjutan.")
+        else:
+            st.error(f"❌ Prediksi IPK: {prediksi_ipk:.2f} — Mahasiswa **KURANG BERHASIL** secara akademik.")
+            st.info("Perlu perhatian lebih terhadap partisipasi, kehadiran, atau beban studi yang terlalu berat.")
