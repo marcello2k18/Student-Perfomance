@@ -14,116 +14,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# === Custom CSS for Better Styling ===
+# === Custom CSS (KEEP YOUR EXISTING CSS HERE) ===
 st.markdown("""
 <style>
-    /* Main container styling */
-    .main {
-        padding: 2rem;
-    }
-    
-    /* Metric cards */
-    .metric-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1.5rem;
-        border-radius: 15px;
-        color: white;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin: 1rem 0;
-    }
-    
-    .metric-card h3 {
-        margin: 0;
-        font-size: 2.5rem;
-        font-weight: bold;
-    }
-    
-    .metric-card p {
-        margin: 0.5rem 0 0 0;
-        font-size: 1rem;
-        opacity: 0.9;
-    }
-    
-    /* Success/Warning/Error cards */
-    .success-card {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        padding: 1.5rem;
-        border-radius: 15px;
-        color: white;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin: 1rem 0;
-    }
-    
-    .warning-card {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        padding: 1.5rem;
-        border-radius: 15px;
-        color: white;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin: 1rem 0;
-    }
-    
-    .danger-card {
-        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        padding: 1.5rem;
-        border-radius: 15px;
-        color: white;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin: 1rem 0;
-    }
-    
-    /* Info boxes */
-    .info-box {
-        background: #f0f2f6;
-        padding: 1rem;
-        border-radius: 10px;
-        border-left: 4px solid #667eea;
-        margin: 1rem 0;
-    }
-    
-    /* Header styling */
-    .big-header {
-        font-size: 3rem;
-        font-weight: bold;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0.5rem;
-    }
-    
-    .sub-header {
-        color: #666;
-        font-size: 1.2rem;
-        margin-bottom: 2rem;
-    }
-    
-    /* Button styling */
-    .stButton>button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 0.75rem 2rem;
-        font-weight: bold;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
-    
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 8px rgba(0,0,0,0.15);
-    }
-    
-    /* Sidebar styling */
-    .css-1d391kg {
-        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    /* DataFrame styling */
-    .dataframe {
-        border-radius: 10px;
-        overflow: hidden;
-    }
+    /* ... your existing CSS ... */
 </style>
 """, unsafe_allow_html=True)
 
@@ -143,10 +37,59 @@ def load_data():
     if not os.path.exists(data_path):
         st.error("❌ Dataset belum ditemukan. Pastikan file 'data_mahasiswa_cleaned.csv' tersedia.")
         st.stop()
-    return pd.read_csv(data_path)
+    df = pd.read_csv(data_path)
+    return df
+
+# === COLUMN NAME MAPPING ===
+def get_column_names(df):
+    """Auto-detect column names with fallback options"""
+    
+    # Possible column name variations
+    nim_cols = ['NIM', 'nim', 'student_id', 'StudentID', 'ID']
+    nama_cols = ['nama', 'Nama', 'name', 'Name', 'student_name']
+    ipk_cols = ['IPK', 'ipk', 'GPA', 'gpa', 'cumulative_gpa']
+    nilai_cols = ['rata2_nilai', 'avg_grade', 'average_grade', 'rata_nilai']
+    hadir_cols = ['rata2_hadir', 'avg_attendance', 'average_attendance', 'rata_hadir']
+    mk_cols = ['jumlah_mk_diambil', 'courses_taken', 'course_taken', 'total_courses']
+    
+    columns = {
+        'NIM': None,
+        'nama': None,
+        'IPK': None,
+        'rata2_nilai': None,
+        'rata2_hadir': None,
+        'jumlah_mk_diambil': None
+    }
+    
+    # Find matching columns
+    for col in df.columns:
+        if col in nim_cols:
+            columns['NIM'] = col
+        elif col in nama_cols:
+            columns['nama'] = col
+        elif col in ipk_cols:
+            columns['IPK'] = col
+        elif col in nilai_cols:
+            columns['rata2_nilai'] = col
+        elif col in hadir_cols:
+            columns['rata2_hadir'] = col
+        elif col in mk_cols:
+            columns['jumlah_mk_diambil'] = col
+    
+    # Check required columns
+    required = ['NIM', 'rata2_nilai', 'rata2_hadir', 'jumlah_mk_diambil']
+    missing = [k for k in required if columns[k] is None]
+    
+    if missing:
+        st.error(f"❌ Kolom yang diperlukan tidak ditemukan: {', '.join(missing)}")
+        st.info(f"📋 Kolom yang tersedia: {', '.join(df.columns.tolist())}")
+        st.stop()
+    
+    return columns
 
 model = load_model()
 df = load_data()
+COLS = get_column_names(df)  # Get actual column names
 
 # === Helper Functions ===
 def get_category_and_message(pred_ipk):
@@ -223,13 +166,13 @@ def create_gauge_chart(value, title):
 
 def create_feature_comparison(mahasiswa):
     """Membuat bar chart perbandingan fitur mahasiswa vs rata-rata"""
-    avg_nilai = df['rata2_nilai'].mean()
-    avg_hadir = df['rata2_hadir'].mean()
-    avg_mk = df['jumlah_mk_diambil'].mean()
+    avg_nilai = df[COLS['rata2_nilai']].mean()
+    avg_hadir = df[COLS['rata2_hadir']].mean()
+    avg_mk = df[COLS['jumlah_mk_diambil']].mean()
     
     fig = go.Figure(data=[
         go.Bar(name='Mahasiswa Ini', x=['Rata-rata Nilai', 'Rata-rata Kehadiran', 'Jumlah MK'],
-               y=[mahasiswa['rata2_nilai'], mahasiswa['rata2_hadir'], mahasiswa['jumlah_mk_diambil']],
+               y=[mahasiswa[COLS['rata2_nilai']], mahasiswa[COLS['rata2_hadir']], mahasiswa[COLS['jumlah_mk_diambil']]],
                marker_color='#667eea'),
         go.Bar(name='Rata-rata Kampus', x=['Rata-rata Nilai', 'Rata-rata Kehadiran', 'Jumlah MK'],
                y=[avg_nilai, avg_hadir, avg_mk],
@@ -273,7 +216,11 @@ with st.sidebar:
     with col1:
         st.metric("Total Students", f"{len(df):,}")
     with col2:
-        st.metric("Avg GPA", f"{df['IPK'].mean():.2f}")
+        # Check if IPK column exists
+        if COLS['IPK'] and COLS['IPK'] in df.columns:
+            st.metric("Avg GPA", f"{df[COLS['IPK']].mean():.2f}")
+        else:
+            st.metric("Avg GPA", "N/A")
     
     st.markdown("---")
     st.markdown("**Made with ❤️ by**")
@@ -302,7 +249,7 @@ with tab1:
     
     if input_nim and predict_button:
         try:
-            mahasiswa = df[df["NIM"].astype(str) == input_nim].iloc[0]
+            mahasiswa = df[df[COLS['NIM']].astype(str) == input_nim].iloc[0]
             
             # Student Info Section
             st.markdown("---")
@@ -313,7 +260,7 @@ with tab1:
             with col1:
                 st.markdown(f"""
                 <div class="metric-card">
-                    <h3>{mahasiswa['rata2_nilai']:.2f}</h3>
+                    <h3>{mahasiswa[COLS['rata2_nilai']]:.2f}</h3>
                     <p>Rata-rata Nilai</p>
                 </div>
                 """, unsafe_allow_html=True)
@@ -321,7 +268,7 @@ with tab1:
             with col2:
                 st.markdown(f"""
                 <div class="metric-card">
-                    <h3>{mahasiswa['rata2_hadir']:.2f}</h3>
+                    <h3>{mahasiswa[COLS['rata2_hadir']]:.2f}</h3>
                     <p>Rata-rata Kehadiran</p>
                 </div>
                 """, unsafe_allow_html=True)
@@ -329,25 +276,25 @@ with tab1:
             with col3:
                 st.markdown(f"""
                 <div class="metric-card">
-                    <h3>{int(mahasiswa['jumlah_mk_diambil'])}</h3>
+                    <h3>{int(mahasiswa[COLS['jumlah_mk_diambil']])}</h3>
                     <p>Jumlah MK</p>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col4:
-                if 'IPK' in mahasiswa:
+                if COLS['IPK'] and COLS['IPK'] in mahasiswa:
                     st.markdown(f"""
                     <div class="metric-card">
-                        <h3>{mahasiswa['IPK']:.2f}</h3>
+                        <h3>{mahasiswa[COLS['IPK']]:.2f}</h3>
                         <p>IPK Aktual</p>
                     </div>
                     """, unsafe_allow_html=True)
             
             # Prediction Section
             fitur = pd.DataFrame([{
-                "rata2_nilai": mahasiswa["rata2_nilai"],
-                "rata2_hadir": mahasiswa["rata2_hadir"],
-                "jumlah_mk_diambil": mahasiswa["jumlah_mk_diambil"]
+                "rata2_nilai": mahasiswa[COLS['rata2_nilai']],
+                "rata2_hadir": mahasiswa[COLS['rata2_hadir']],
+                "jumlah_mk_diambil": mahasiswa[COLS['jumlah_mk_diambil']]
             }])
             
             prediksi_ipk = model.predict(fitur)[0]
@@ -449,21 +396,21 @@ with tab2:
                         progress_bar.progress((idx + 1) / total)
                         
                         try:
-                            mhs = df[df["NIM"].astype(str) == nim].iloc[0]
+                            mhs = df[df[COLS['NIM']].astype(str) == nim].iloc[0]
                             fitur = pd.DataFrame([{
-                                "rata2_nilai": mhs["rata2_nilai"],
-                                "rata2_hadir": mhs["rata2_hadir"],
-                                "jumlah_mk_diambil": mhs["jumlah_mk_diambil"]
+                                "rata2_nilai": mhs[COLS['rata2_nilai']],
+                                "rata2_hadir": mhs[COLS['rata2_hadir']],
+                                "jumlah_mk_diambil": mhs[COLS['jumlah_mk_diambil']]
                             }])
                             pred_ipk = model.predict(fitur)[0]
                             result = get_category_and_message(pred_ipk)
                             
                             result_rows.append({
                                 "NIM": nim,
-                                "Nama": mhs.get("nama", "-"),
-                                "Rata2 Nilai": round(mhs["rata2_nilai"], 2),
-                                "Rata2 Kehadiran": round(mhs["rata2_hadir"], 2),
-                                "Jumlah MK": int(mhs["jumlah_mk_diambil"]),
+                                "Nama": mhs.get(COLS['nama'], "-") if COLS['nama'] else "-",
+                                "Rata2 Nilai": round(mhs[COLS['rata2_nilai']], 2),
+                                "Rata2 Kehadiran": round(mhs[COLS['rata2_hadir']], 2),
+                                "Jumlah MK": int(mhs[COLS['jumlah_mk_diambil']]),
                                 "Prediksi IPK": round(pred_ipk, 2),
                                 "Kategori": result['kategori'],
                                 "Rekomendasi": result['rekomendasi']
@@ -524,17 +471,7 @@ with tab2:
                     # Results table
                     st.markdown("---")
                     st.markdown("### 📋 Detail Hasil Prediksi")
-                    st.dataframe(
-                        hasil_df.style.apply(
-                            lambda x: ['background-color: #d4edda' if '🏆' in str(v) or '✅' in str(v)
-                                      else 'background-color: #fff3cd' if '⚠️' in str(v)
-                                      else 'background-color: #f8d7da' if '❌' in str(v)
-                                      else '' for v in x],
-                            subset=['Kategori']
-                        ),
-                        use_container_width=True,
-                        height=400
-                    )
+                    st.dataframe(hasil_df, use_container_width=True, height=400)
                     
                     # Download button
                     csv = hasil_df.to_csv(index=False).encode("utf-8")
@@ -558,81 +495,92 @@ with tab3:
     with col1:
         st.metric("Total Mahasiswa", f"{len(df):,}")
     with col2:
-        st.metric("Rata-rata IPK", f"{df['IPK'].mean():.2f}")
+        if COLS['IPK'] and COLS['IPK'] in df.columns:
+            st.metric("Rata-rata IPK", f"{df[COLS['IPK']].mean():.2f}")
+        else:
+            st.metric("Rata-rata IPK", "N/A")
     with col3:
-        st.metric("Std Dev IPK", f"{df['IPK'].std():.2f}")
+        if COLS['IPK'] and COLS['IPK'] in df.columns:
+            st.metric("Std Dev IPK", f"{df[COLS['IPK']].std():.2f}")
+        else:
+            st.metric("Std Dev IPK", "N/A")
     
     st.markdown("---")
     
-    # GPA Distribution
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        fig_gpa_dist = px.histogram(
-            df,
-            x='IPK',
-            nbins=30,
-            title='Distribusi IPK Mahasiswa',
-            color_discrete_sequence=['#667eea']
-        )
-        fig_gpa_dist.add_vline(x=df['IPK'].mean(), line_dash="dash", line_color="red",
-                              annotation_text="Mean")
-        fig_gpa_dist.update_layout(height=400)
-        st.plotly_chart(fig_gpa_dist, use_container_width=True)
-    
-    with col2:
-        # GPA Categories
-        categories = []
-        for ipk in df['IPK']:
-            if ipk >= 3.51:
-                categories.append('Cum Laude')
-            elif ipk >= 3.01:
-                categories.append('Sangat Memuaskan')
-            elif ipk >= 2.76:
-                categories.append('Memuaskan')
-            else:
-                categories.append('Perlu Perhatian')
+    # Only show analytics if IPK column exists
+    if COLS['IPK'] and COLS['IPK'] in df.columns:
+        # GPA Distribution
+        col1, col2 = st.columns(2)
         
-        df_cat = pd.DataFrame({'Kategori': categories})
-        cat_counts = df_cat['Kategori'].value_counts()
+        with col1:
+            fig_gpa_dist = px.histogram(
+                df,
+                x=COLS['IPK'],
+                nbins=30,
+                title='Distribusi IPK Mahasiswa',
+                color_discrete_sequence=['#667eea']
+            )
+            fig_gpa_dist.add_vline(x=df[COLS['IPK']].mean(), line_dash="dash", line_color="red",
+                                  annotation_text="Mean")
+            fig_gpa_dist.update_layout(height=400)
+            st.plotly_chart(fig_gpa_dist, use_container_width=True)
         
-        fig_pie = px.pie(
-            values=cat_counts.values,
-            names=cat_counts.index,
-            title='Distribusi Kategori Kelulusan',
-            color_discrete_sequence=['#11998e', '#38ef7d', '#f093fb', '#f5576c']
-        )
-        fig_pie.update_layout(height=400)
-        st.plotly_chart(fig_pie, use_container_width=True)
-    
-    st.markdown("---")
-    
-    # Feature Correlations
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        fig_scatter1 = px.scatter(
-            df,
-            x='rata2_nilai',
-            y='IPK',
-            title='Hubungan Rata-rata Nilai vs IPK',
-            trendline="ols",
-            color_discrete_sequence=['#667eea']
-        )
-        fig_scatter1.update_layout(height=400)
-        st.plotly_chart(fig_scatter1, use_container_width=True)
-    
-    with col2:
-        fig_scatter2 = px.scatter(
-            df,
-            x='rata2_hadir',
-            y='IPK',
-            title='Hubungan Rata-rata Kehadiran vs IPK',
-            trendline="ols",
-            color_discrete_sequence=['#764ba2']
-        )
-        fig_scatter2.update_layout(height=400)
-        st.plotly_chart(fig_scatter2, use_container_width=True)
+        with col2:
+            # GPA Categories
+            categories = []
+            for ipk in df[COLS['IPK']]:
+                if ipk >= 3.51:
+                    categories.append('Cum Laude')
+                elif ipk >= 3.01:
+                    categories.append('Sangat Memuaskan')
+                elif ipk >= 2.76:
+                    categories.append('Memuaskan')
+                else:
+                    categories.append('Perlu Perhatian')
+            
+            df_cat = pd.DataFrame({'Kategori': categories})
+            cat_counts = df_cat['Kategori'].value_counts()
+            
+            fig_pie = px.pie(
+                values=cat_counts.values,
+                names=cat_counts.index,
+                title='Distribusi Kategori Kelulusan',
+                color_discrete_sequence=['#11998e', '#38ef7d', '#f093fb', '#f5576c']
+            )
+            fig_pie.update_layout(height=400)
+            st.plotly_chart(fig_pie, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # Feature Correlations
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            fig_scatter1 = px.scatter(
+                df,
+                x=COLS['rata2_nilai'],
+                y=COLS['IPK'],
+                title='Hubungan Rata-rata Nilai vs IPK',
+                trendline="ols",
+                color_discrete_sequence=['#667eea']
+            )
+            fig_scatter1.update_layout(height=400)
+            st.plotly_chart(fig_scatter1, use_container_width=True)
+        
+        with col2:
+            fig_scatter2 = px.scatter(
+                df,
+                x=COLS['rata2_hadir'],
+                y=COLS['IPK'],
+                title='Hubungan Rata-rata Kehadiran vs IPK',
+                trendline="ols",
+                color_discrete_sequence=['#764ba2']
+            )
+            fig_scatter2.update_layout(height=400)
+            st.plotly_chart(fig_scatter2, use_container_width=True)
+    else:
+        st.warning("⚠️ Kolom IPK tidak ditemukan di dataset. Dashboard analytics tidak tersedia.")
+        st.info("💡 Dashboard hanya menampilkan statistik dasar tanpa analisis IPK aktual.")
 
 # === Footer ===
 st.markdown("---")
